@@ -45,7 +45,7 @@ try:
 	import configparser
 	from urllib.error import HTTPError
 	import json
-	import unicornhat as unicorn
+	import unicornhatmini
 	import threading
 	import sys
 	import urllib.parse
@@ -218,40 +218,48 @@ def checkUpdate():
 # ############################
 #        UNICORN SETUP
 # ############################
-def setColor(r, g, b, brightness, speed) :
-	global crntColors, globalBlue, globalGreen, globalRed
-	globalRed = r
-	globalGreen = g
-	globalBlue = b
+# Initialize the Unicorn HAT Mini
+unicorn = unicornhatmini.UnicornHATMini()
+unicorn.set_rotation(0)  # Set rotation if needed (0, 90, 180, 270)
+unicorn.set_brightness(brightness_led)
 
-	if brightness == '' :
-		unicorn.brightness(brightness_led)
+# Get the width and height of the hardware
+width, height = unicorn.get_shape()
 
-	for y in range(height):
-		for x in range(width):
-			unicorn.set_pixel(x, y, r, g, b)
-			unicorn.show()
+def setColor(r, g, b, brightness, speed):
+    global crntColors, globalBlue, globalGreen, globalRed
+    globalRed = r
+    globalGreen = g
+    globalBlue = b
+
+    if brightness == '':
+        unicorn.set_brightness(brightness_led)
+
+    for y in range(height):
+        for x in range(width):
+            unicorn.set_pixel(x, y, r, g, b)
+    unicorn.show()
 
 def pulse():
-	for b in range(0, 7):
-		blockPrint()
-		unicorn.brightness(b/10)
-		enablePrint()
-		for y in range(height):
-			for x in range(width):
-				unicorn.set_pixel(x, y, 102, 255, 255)
-				unicorn.show()
-		sleep(0.05)
-	sleep(1)
-	for b in range(6, 0, -1):
-		blockPrint()
-		unicorn.brightness(b/10)
-		enablePrint()
-		for y in range(height):
-			for x in range(width):
-				unicorn.set_pixel(x, y, 102, 255, 255)
-				unicorn.show()
-		sleep(0.05)
+    for b in range(0, 7):
+        blockPrint()
+        unicorn.set_brightness(b / 10)
+        enablePrint()
+        for y in range(height):
+            for x in range(width):
+                unicorn.set_pixel(x, y, 102, 255, 255)
+        unicorn.show()
+        sleep(0.05)
+    sleep(1)
+    for b in range(6, 0, -1):
+        blockPrint()
+        unicorn.set_brightness(b / 10)
+        enablePrint()
+        for y in range(height):
+            for x in range(width):
+                unicorn.set_pixel(x, y, 102, 255, 255)
+        unicorn.show()
+        sleep(0.05)
 
 def switchBlue() :
 	red = 0
@@ -293,15 +301,15 @@ def switchYellow() :
 	blinkThread.do_run = True
 	blinkThread.start()
 
-def switchOff() :
-	global blinkThread, globalBlue, globalGreen, globalRed
-	globalRed = 0
-	globalGreen = 0
-	globalBlue = 0
-	if blinkThread != None :
-		blinkThread.do_run = False
-	unicorn.clear()
-	unicorn.off()
+def switchOff():
+    global blinkThread, globalBlue, globalGreen, globalRed
+    globalRed = 0
+    globalGreen = 0
+    globalBlue = 0
+    if blinkThread is not None:
+        blinkThread.do_run = False
+    unicorn.clear()
+    unicorn.show()
 
 class LightPoint:
 
@@ -500,14 +508,6 @@ if __name__ == '__main__':
 	# Check for updates
 	checkUpdate()
 
-	# Setup Unicorn light
-	setColor(50, 50, 50, 1, '')
-	unicorn.set_layout(unicorn.AUTO)
-	unicorn.brightness(0.5)
-
-	# Get the width and height of the hardware
-	width, height = unicorn.get_shape()
-
 	blinkThread = threading.Thread(target=blinkRandom, args=("task",))
 	blinkThread.do_run = True
 	blinkThread.start()
@@ -630,41 +630,41 @@ if __name__ == '__main__':
 			print("Teams presence:\t\t" + '\033[31m' + "In a call" + '\033[0m')
 			switchRed()
 		elif jsonresult['activity'] == "Away":
-                        print("Teams presence:\t\t" + '\033[33m' + "Away" + '\033[0m')
-                        switchYellow()
+			print("Teams presence:\t\t" + '\033[33m' + "Away" + '\033[0m')
+			switchYellow()
 		elif jsonresult['activity'] == "BeRightBack":
-                        print("Teams presence:\t\t" + '\033[33m' + "Be Right Back" + '\033[0m')
-                        switchYellow()
+			print("Teams presence:\t\t" + '\033[33m' + "Be Right Back" + '\033[0m')
+			switchYellow()
 		elif jsonresult['activity'] == "Busy":
-                        print("Teams presence:\t\t" + '\033[31m' + "Busy" + '\033[0m')
-                        switchRed()
+			print("Teams presence:\t\t" + '\033[31m' + "Busy" + '\033[0m')
+			switchRed()
 		elif jsonresult['activity'] == "InAConferenceCall":
-                        print("Teams presence:\t\t" + '\033[31m' + "In a conference call" + '\033[0m')
-                        switchRed()
+			print("Teams presence:\t\t" + '\033[31m' + "In a conference call" + '\033[0m')
+			switchRed()
 		elif jsonresult['activity'] == "DoNotDisturb":
-                        print("Teams presence:\t\t" + '\033[31m' + "Do Not Disturb" + '\033[0m')
-                        switchRed()
+			print("Teams presence:\t\t" + '\033[31m' + "Do Not Disturb" + '\033[0m')
+			switchRed()
 		elif jsonresult['activity'] == "Offline":
 			print("Teams presence:\t\t" + "Offline")
 			switchPink()
 		elif jsonresult['activity'] == "Inactive":
-                        print("Teams presence:\t\t" + '\033[33m' + "Inactive" + '\033[0m')
-                        switchYellow()
+			print("Teams presence:\t\t" + '\033[33m' + "Inactive" + '\033[0m')
+			switchYellow()
 		elif jsonresult['activity'] == "InAMeeting":
-                        print("Teams presence:\t\t" + '\033[31m' + "In a meeting" + '\033[0m')
-                        switchRed()
+			print("Teams presence:\t\t" + '\033[31m' + "In a meeting" + '\033[0m')
+			switchRed()
 		elif jsonresult['activity'] == "OffWork":
-                        print("Teams presence:\t\t" + '\033[35m' + "Off work" + '\033[0m')
-                        switchPink()
+			print("Teams presence:\t\t" + '\033[35m' + "Off work" + '\033[0m')
+			switchPink()
 		elif jsonresult['activity'] == "OutOfOffice":
-                        print("Teams presence:\t\t" + '\033[35m' + "Out of office" + '\033[0m')
-                        switchPink()
+			print("Teams presence:\t\t" + '\033[35m' + "Out of office" + '\033[0m')
+			switchPink()
 		elif jsonresult['activity'] == "Presenting":
-                        print("Teams presence:\t\t" + '\033[31m' + "Presenting" + '\033[0m')
-                        switchRed()
+			print("Teams presence:\t\t" + '\033[31m' + "Presenting" + '\033[0m')
+			switchRed()
 		elif jsonresult['activity'] == "UrgentInterruptionsOnly":
-                        print("Teams presence:\t\t" + '\033[31m' + "Urgent interruptions only" + '\033[0m')
-                        switchRed()
+			print("Teams presence:\t\t" + '\033[31m' + "Urgent interruptions only" + '\033[0m')
+			switchRed()
 		else:
 			print("Teams presence:\t\t" + "Unknown")
 			switchBlue()
