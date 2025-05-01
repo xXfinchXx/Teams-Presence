@@ -293,6 +293,14 @@ def switchPink() :
 	blinkThread.do_run = True
 	blinkThread.start()
 
+def switchPurple():
+	red = 128
+	green = 0
+	blue = 128
+	blinkThread = threading.Thread(target=setColor, args=(red, green, blue, '', ''))
+	blinkThread.do_run = True
+	blinkThread.start()
+
 def switchYellow() :
 	red = 255
 	green = 255
@@ -646,7 +654,7 @@ if __name__ == '__main__':
 			switchRed()
 		elif jsonresult['activity'] == "Offline":
 			print("Teams presence:\t\t" + "Offline")
-			switchPink()
+			switchOff()
 		elif jsonresult['activity'] == "Inactive":
 			print("Teams presence:\t\t" + '\033[33m' + "Inactive" + '\033[0m')
 			switchYellow()
@@ -655,10 +663,10 @@ if __name__ == '__main__':
 			switchRed()
 		elif jsonresult['activity'] == "OffWork":
 			print("Teams presence:\t\t" + '\033[35m' + "Off work" + '\033[0m')
-			switchPink()
+			switchOff()
 		elif jsonresult['activity'] == "OutOfOffice":
 			print("Teams presence:\t\t" + '\033[35m' + "Out of office" + '\033[0m')
-			switchPink()
+			switchPurple()
 		elif jsonresult['activity'] == "Presenting":
 			print("Teams presence:\t\t" + '\033[31m' + "Presenting" + '\033[0m')
 			switchRed()
@@ -667,7 +675,7 @@ if __name__ == '__main__':
 			switchRed()
 		else:
 			print("Teams presence:\t\t" + "Unknown")
-			switchBlue()
+			switchOff()
 		print()
 		countdown(int(sleepValue))
 
