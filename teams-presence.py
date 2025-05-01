@@ -310,14 +310,18 @@ def switchYellow() :
 	blinkThread.start()
 
 def switchOff():
-    global blinkThread, globalBlue, globalGreen, globalRed
-    globalRed = 0
-    globalGreen = 0
-    globalBlue = 0
-    if blinkThread is not None:
-        blinkThread.do_run = False
-    unicorn.clear()
-    unicorn.show()
+	global blinkThread, globalBlue, globalGreen, globalRed
+	globalRed = 0
+	globalGreen = 0
+	globalBlue = 0
+	if blinkThread is not None:
+		blinkThread.do_run = False
+		blinkThread.join()  # Ensure the thread is properly stopped
+	unicorn.clear()  # Clear the LED display
+	for y in range(height):  # Explicitly turn off all pixels
+		for x in range(width):
+			unicorn.set_pixel(x, y, 0, 0, 0)
+	unicorn.show()  # Update the display to reflect the changes
 
 class LightPoint:
 
@@ -675,7 +679,7 @@ if __name__ == '__main__':
 			switchRed()
 		else:
 			print("Teams presence:\t\t" + "Unknown")
-			switchOff()
+			switchBlue()
 		print()
 		countdown(int(sleepValue))
 
